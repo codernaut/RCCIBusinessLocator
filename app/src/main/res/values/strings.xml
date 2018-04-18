@@ -1,4 +1,20 @@
 <resources>
     <string name="app_name">RCCI Business Locator</string>
     <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="location__permission_disabled">You don\'t have permissions \nto use your location. To enable \npress below button</string>
+    <string name="location_disabled">Your location has been switched off. To use location Please enable it first.</string>
+    <string name="enable">Enable</string>
+    <string name="title_location_disabled">Location Disabled</string>
+    <string name="title_internet_disabled">Internet Disabled</string>
+    <string name="internet_disabled">Your internet has been turned off. To use internet Please enable it first.</string>
+    <string name="button_ok">OK</string>
+    <string name="search_current_location">Current Location</string>
+    <string name="search_location">Search Locaion</string>
+
+
+    <string name="REALM_SCHEMA_VERSION">1</string>
+
 </resources>

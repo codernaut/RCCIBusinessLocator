@@ -17,4 +17,6 @@
 
     <string name="REALM_SCHEMA_VERSION">1</string>
 
+    <string name="CATEGORY_NAME">CATEGORY_NAME</string>
+
 </resources>

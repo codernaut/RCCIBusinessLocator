@@ -52,6 +52,7 @@
                     android:layout_height="match_parent"
                     android:hint="Search Location"
                     android:textColorHint="@color/white"
+                    android:textColor="@color/white"
                     android:background="@color/colorPrimaryLight">
                 </TextView>
             </LinearLayout>

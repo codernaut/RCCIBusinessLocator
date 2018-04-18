@@ -5,6 +5,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -14,10 +16,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.codeforpakistan.rccibusinesslocator.R;
 import org.codeforpakistan.rccibusinesslocator.dialog.LocationAlertDialogFragment;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 
 /**
@@ -83,6 +88,28 @@ public class utils {
         }
 
         return result;
+    }
+
+    public static LatLng getLocationFromAddress(Context context, String strAddress) {
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+
+        try {
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                return null;
+            }
+            Address location = address.get(0);
+            location.getLatitude();
+            location.getLongitude();
+
+            p1 = new LatLng(location.getLatitude(), location.getLongitude());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return p1;
+
     }
 
     public static void showLocationSettingsAlert(final AppCompatActivity context) {

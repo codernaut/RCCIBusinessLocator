@@ -5,7 +5,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
-import org.codeforpakistan.rccibusinesslocator.App;
+import org.codeforpakistan.rccibusinesslocator.RcciApplication;
 
 
 /**
@@ -14,7 +14,7 @@ import org.codeforpakistan.rccibusinesslocator.App;
 
 public class LocationProviderChangedReceiver extends BroadcastReceiver {
     public static LocationReceiverListener locationReceiverListener;
-    public static App locationReceiverListenerWidget;
+    public static RcciApplication locationReceiverListenerWidget;
 
     @Override
     public void onReceive(Context context, Intent intent) {

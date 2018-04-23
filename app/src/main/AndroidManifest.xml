@@ -32,11 +32,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <service
-            android:name=".backgroundServices.LocationService"
-            android:enabled="true"
-            android:exported="false" />
-
         <receiver
             android:name=".broadcastRecievers.LocationProviderChangedReceiver"
             android:exported="false">
@@ -57,7 +52,7 @@
 
         <activity
             android:name=".activities.MapsActivity"
-            android:label="Maps Activity`">
+            android:label="RCCI">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

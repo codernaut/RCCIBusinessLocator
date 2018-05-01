@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 
@@ -36,6 +38,7 @@ import org.codeforpakistan.rccibusinesslocator.R;
 import org.codeforpakistan.rccibusinesslocator.RcciApplication;
 import org.codeforpakistan.rccibusinesslocator.broadcastRecievers.ConnectivityReceiver;
 import org.codeforpakistan.rccibusinesslocator.broadcastRecievers.LocationProviderChangedReceiver;
+import org.codeforpakistan.rccibusinesslocator.fragments.CompanyDetailsFragment;
 import org.codeforpakistan.rccibusinesslocator.model.Companies;
 import org.codeforpakistan.rccibusinesslocator.model.CompanyDetails;
 import org.codeforpakistan.rccibusinesslocator.utilities.LocationSettings;
@@ -70,9 +73,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Toolbar toolbar;
     private Spinner categorySpinner;
     private List<String> categoryList;
+    CompanyDetailsFragment companyDetailsFragment;
+    FragmentManager fragmentManager;
     DecimalFormat dtime = new DecimalFormat("#.######");
 
     LocationSettings mLocationSettings;
+    OnMarkerSelectListener mOnMarkerSelectListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +91,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         searchTV = findViewById(R.id.search_TV);
         categorySpinner = findViewById(R.id.categorySpinner);
         categoryList = new ArrayList<>();
+        companyDetailsFragment = new CompanyDetailsFragment();
+        fragmentManager = getSupportFragmentManager();
         setSupportActionBar(toolbar);
         categoryList.add("All");
         companiesList = new ArrayList<>();
@@ -171,6 +179,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         myRef = firebaseDatabase.getReference();
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                .add(R.id.locationDetails, companyDetailsFragment).hide(companyDetailsFragment).commit();
         fetchFirebaseData(myRef, response -> {
             Log.i("ModelTest", response.toString());
             for (Companies companies : response) {
@@ -194,6 +206,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setBuildingsEnabled(true);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(islamabad));
         UpdateMarker();
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                mOnMarkerSelectListener = (OnMarkerSelectListener)companyDetailsFragment;
+                mOnMarkerSelectListener.OnMArkerSelecetd(marker.getTitle(),"");
+
+                fragmentManager.beginTransaction().show(companyDetailsFragment).commit();
+                return true;
+            }
+        });
     }
 
 
@@ -233,7 +255,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     companyLocation.setLongitude(utils.getDecimalValue(latLng.longitude));
                     //Float distanceInKiloMeters = (currentLocation.distanceTo(companyLocation)) / 1000; // as distance is in meter
                     // if (distanceInKiloMeters <= maxDistance) {
-                    mMap.addMarker(new MarkerOptions().position(latLng).title(company.getPhone()));
+                    mMap.addMarker(new MarkerOptions().position(latLng).title(company.getName()));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
                     /*} else {
 
@@ -317,6 +339,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivityForResult(intent, SELECTED_LOCATION);
     }
 
+    public  void showCategories(View view){
+        categorySpinner.performClick();
+    }
+
     @Override
     public void OnLocationSettingRespponse(Location location) {
         Location currentLocation = new Location("");
@@ -326,5 +352,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.clear();
         mMap.addMarker(new MarkerOptions().position(current).title("Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_on)));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
+    }
+    public interface OnMarkerSelectListener {
+        void OnMArkerSelecetd(String companyName, String Address);
     }
 }

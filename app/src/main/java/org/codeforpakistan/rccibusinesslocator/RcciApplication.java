@@ -12,7 +12,7 @@ import io.realm.RealmConfiguration;
 
 public class RcciApplication extends Application {
     private static RcciApplication INSTANCE;
-    public static Realm realm;
+
     public static RealmConfiguration config;
     public static FirebaseDatabase firebaseDatabase;
     public static RcciApplication getInstance() {
@@ -29,7 +29,8 @@ public class RcciApplication extends Application {
         config = new RealmConfiguration.Builder()
                 .deleteRealmIfMigrationNeeded()
                 .schemaVersion(R.string.REALM_SCHEMA_VERSION).build();
-        realm = Realm.getInstance(config);
+        Realm.setDefaultConfiguration(config);
+
     }
 
     public void setConnectivityListener(ConnectivityReceiver.ConnectivityReceiverListener listener) {

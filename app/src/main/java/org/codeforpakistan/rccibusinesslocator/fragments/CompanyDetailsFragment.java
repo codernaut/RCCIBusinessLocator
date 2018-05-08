@@ -29,8 +29,9 @@ public class CompanyDetailsFragment extends Fragment implements MapsActivity.OnM
     }
 
     @Override
-    public void OnMArkerSelecetd(String companyName, String Address) {
-        companyAddressTV.setText(Address);
-        companyNameTV.setText(companyName);
+    public void OnMArkerSelecetd(String companyName) {
+        String popUpDetails[] = companyName.split("/");
+        companyAddressTV.setText(popUpDetails[1]);
+        companyNameTV.setText(popUpDetails[0]);
     }
 }

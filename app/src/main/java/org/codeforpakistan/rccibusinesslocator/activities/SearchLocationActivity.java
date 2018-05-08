@@ -23,6 +23,7 @@ import org.codeforpakistan.rccibusinesslocator.adapters.AdapterSearchCompanies;
 import org.codeforpakistan.rccibusinesslocator.model.Companies;
 import org.codeforpakistan.rccibusinesslocator.model.CompanyDetails;
 
+import io.realm.Realm;
 import io.realm.RealmResults;
 
 public class SearchLocationActivity extends AppCompatActivity implements OnSearchViewListener , AdapterSearchCompanies.LocationClickListener {
@@ -54,9 +55,9 @@ public class SearchLocationActivity extends AppCompatActivity implements OnSearc
         if( getIntent()!=null) {
            selectedCategory = getIntent().getStringExtra("CATEGORY_NAME");
            if(selectedCategory.equals("All")){
-               mAdapter = new AdapterSearchCompanies(Companies.getAllCompanies(RcciApplication.realm), SearchLocationActivity.this, SearchLocationActivity.this);
+               mAdapter = new AdapterSearchCompanies(Companies.getAllCompanies(Realm.getDefaultInstance()), SearchLocationActivity.this, SearchLocationActivity.this);
            }else {
-               mAdapter = new AdapterSearchCompanies(Companies.filterByCategory(selectedCategory,RcciApplication.realm), SearchLocationActivity.this, SearchLocationActivity.this);
+               mAdapter = new AdapterSearchCompanies(Companies.filterByCategory(selectedCategory,Realm.getDefaultInstance()), SearchLocationActivity.this, SearchLocationActivity.this);
            }
             recyclerView.setAdapter(mAdapter);
         }
@@ -92,10 +93,10 @@ public class SearchLocationActivity extends AppCompatActivity implements OnSearc
     @Override
     public void onQueryTextChange(String s) {
         if(selectedCategory.equals("All")){
-            mAdapter = new AdapterSearchCompanies(Companies.searchCompanies(RcciApplication.realm,s), SearchLocationActivity.this, SearchLocationActivity.this);
+            mAdapter = new AdapterSearchCompanies(Companies.searchCompanies(Realm.getDefaultInstance(),s), SearchLocationActivity.this, SearchLocationActivity.this);
             recyclerView.setAdapter(mAdapter);
         }else {
-            mAdapter = new AdapterSearchCompanies(Companies.searchCompaniesNameByCategory(selectedCategory,RcciApplication.realm,s), SearchLocationActivity.this, SearchLocationActivity.this);
+            mAdapter = new AdapterSearchCompanies(Companies.searchCompaniesNameByCategory(selectedCategory,Realm.getDefaultInstance(),s), SearchLocationActivity.this, SearchLocationActivity.this);
             recyclerView.setAdapter(mAdapter);
         }
     }

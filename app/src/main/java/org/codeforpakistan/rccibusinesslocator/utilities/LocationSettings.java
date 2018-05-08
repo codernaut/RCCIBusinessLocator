@@ -21,6 +21,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import org.codeforpakistan.rccibusinesslocator.RcciApplication;
+
+import io.realm.Realm;
+
 public class LocationSettings {
 
 
@@ -85,7 +89,6 @@ public class LocationSettings {
                 if (e instanceof ResolvableApiException) {
 
                     try {
-
                         ResolvableApiException resolvable = (ResolvableApiException) e;
                         resolvable.startResolutionForResult(activity,
                                 REQUEST_CHECK_SETTINGS);
@@ -98,7 +101,7 @@ public class LocationSettings {
     }
 
 
-    public void showLocation() {
+    public void showLocation(boolean getLocationOnly) {
         if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(mActivity,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
@@ -108,12 +111,18 @@ public class LocationSettings {
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(mActivity, location -> {
                     if (location != null) {
-                        mLocationSettingsListener.OnLocationSettingRespponse(location);
+                        if (getLocationOnly) {
+                            mLocationSettingsListener.OnLocation(location);
+                        }
+                        else  {
+                            mLocationSettingsListener.OnLocationSettingRespponse(location);
+                        }
                     }
                 });
     }
 
     public interface LocationsSettingsListener {
         void OnLocationSettingRespponse(Location location);
+        void OnLocation(Location location);
     }
 }

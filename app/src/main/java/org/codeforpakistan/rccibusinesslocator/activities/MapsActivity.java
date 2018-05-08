@@ -1,6 +1,7 @@
 package org.codeforpakistan.rccibusinesslocator.activities;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -49,6 +51,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
+
 import static org.codeforpakistan.rccibusinesslocator.RcciApplication.firebaseDatabase;
 import static org.codeforpakistan.rccibusinesslocator.model.Companies.fetchFirebaseData;
 import static org.codeforpakistan.rccibusinesslocator.model.Companies.filterByCategory;
@@ -79,14 +83,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     LocationSettings mLocationSettings;
     OnMarkerSelectListener mOnMarkerSelectListener;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.CustomAppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        maxDistance = maxDistance == 2f ? 20f : 2f;
-
+        maxDistance = maxDistance == 2f ? 5f : 2f;
         toolbar = findViewById(R.id.toolbar);
         searchTV = findViewById(R.id.search_TV);
         categorySpinner = findViewById(R.id.categorySpinner);
@@ -96,7 +100,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setSupportActionBar(toolbar);
         categoryList.add("All");
         companiesList = new ArrayList<>();
+
         initializeViews();
+
     }
 
     @Override
@@ -106,8 +112,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             switch (requestCode) {
                 case SELECTED_LOCATION:
                     String selectedAddress = data.getStringExtra("address");
+                    String selectedName = data.getStringExtra("name");
                     searchTV.setText(selectedAddress);
-                    showLocationAt(selectedAddress);
+                    showLocationAt(selectedAddress,selectedName);
                     break;
                 default:
             }
@@ -126,7 +133,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } else {
                 if (utils.checkNetworkState(MapsActivity.this)) {
                     if (utils.canGetLocation(MapsActivity.this)) {
-                        //UpdateMarker();
                         mLocationSettings = new LocationSettings(this, this);
                     } else {
 
@@ -145,6 +151,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onDestroy() {
         unregisterReceiver(connectivityReceiver);
+        progressDialog.dismiss();
         super.onDestroy();
     }
 
@@ -175,27 +182,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void initializeViews() {
+        progressDialog = new ProgressDialog(MapsActivity.this, R.style.progressDialog);
+        progressDialog.setTitle("Please wait");
+        progressDialog.setMessage("Updating Locations");
         connectivityReceiver = new ConnectivityReceiver();
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         myRef = firebaseDatabase.getReference();
-
         fragmentManager.beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .add(R.id.locationDetails, companyDetailsFragment).hide(companyDetailsFragment).commit();
-        fetchFirebaseData(myRef, response -> {
-            Log.i("ModelTest", response.toString());
-            for (Companies companies : response) {
-                categoryList.add(companies.getCategory());
-                for (CompanyDetails companyDetails : companies.getComapniesList()) {
-                    companiesList.add(companyDetails);
-                }
-                initSpinner();
-            }
+       List<CompanyDetails> mList = getAllCompanies(Realm.getDefaultInstance());
 
-        }, error -> {
-
-        });
+        if(mList!= null &&mList.size()>0){
+            companiesList = mList;
+            initSpinner();
+        }
+        else {
+            new DownloadFiles().execute();
+        }
     }
 
     @Override
@@ -206,15 +211,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setBuildingsEnabled(true);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(islamabad));
         UpdateMarker();
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                mOnMarkerSelectListener = (OnMarkerSelectListener)companyDetailsFragment;
-                mOnMarkerSelectListener.OnMArkerSelecetd(marker.getTitle(),"");
+        mMap.setOnMarkerClickListener(marker -> {
+            mOnMarkerSelectListener = companyDetailsFragment;
+            mOnMarkerSelectListener.OnMArkerSelecetd(marker.getTitle());
 
-                fragmentManager.beginTransaction().show(companyDetailsFragment).commit();
-                return true;
-            }
+            fragmentManager.beginTransaction().show(companyDetailsFragment).commit();
+            return true;
         });
     }
 
@@ -242,38 +244,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void UpdateMarker() {
+
+        Log.i("RCCI_Debug","Update Marker Calling ");
         if (mMap != null && companiesList != null && companiesList.size() > 0) {
             mMap.clear();
-
-
+            fragmentManager.beginTransaction().hide(companyDetailsFragment).commit();
             mMap.setBuildingsEnabled(true);
-            for (CompanyDetails company : companiesList) {
-                Location companyLocation = new Location("");
-                LatLng latLng = getLocationFromAddress(MapsActivity.this, company.getAddress());
-                if (latLng != null) {
-                    companyLocation.setLatitude(utils.getDecimalValue(latLng.latitude));
-                    companyLocation.setLongitude(utils.getDecimalValue(latLng.longitude));
-                    //Float distanceInKiloMeters = (currentLocation.distanceTo(companyLocation)) / 1000; // as distance is in meter
-                    // if (distanceInKiloMeters <= maxDistance) {
-                    mMap.addMarker(new MarkerOptions().position(latLng).title(company.getName()));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
-                    /*} else {
-
-                        Log.i("Distance ", "Not in range");
-                    }*/
-                }
+            if (mLocationSettings != null) {
+                mLocationSettings.showLocation(true);
             }
+        }
+        else {
+            Log.i("RCCI_Debug","Company List is still Empty ");
         }
     }
 
-    private void showLocationAt(String Address) {
+    private void showLocationAt(String Address, String companyName) {
         LatLng latLng = getLocationFromAddress(MapsActivity.this, Address);
         Location companyLocation = new Location("");
         if (latLng != null) {
             mMap.clear();
             companyLocation.setLatitude(utils.getDecimalValue(latLng.latitude));
             companyLocation.setLongitude(utils.getDecimalValue(latLng.longitude));
-            mMap.addMarker(new MarkerOptions().position(latLng).title(Address));
+            mMap.addMarker(new MarkerOptions().position(latLng).title(companyName+"/"+Address));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
         }
     }
@@ -304,7 +297,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mSelectedIndex = i;
                 companiesList.clear();
                 companiesList = categorySpinner.getSelectedItem().equals("All")
-                        ? getAllCompanies(RcciApplication.realm) : filterByCategory(categorySpinner.getSelectedItem().toString(), RcciApplication.realm);
+                        ? getAllCompanies(Realm.getDefaultInstance()) : filterByCategory(categorySpinner.getSelectedItem().toString(), Realm.getDefaultInstance());
                 UpdateMarker();
             }
 
@@ -314,7 +307,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(spinnerAdapter);
+        runOnUiThread(() -> categorySpinner.setAdapter(spinnerAdapter));
     }
 
     public void showRegisterURL(View view) {
@@ -329,7 +322,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void currentLocation(View view) {
         if (mLocationSettings != null) {
-            mLocationSettings.showLocation();
+            mLocationSettings.showLocation(false);
         }
     }
 
@@ -339,7 +332,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivityForResult(intent, SELECTED_LOCATION);
     }
 
-    public  void showCategories(View view){
+    public void showCategories(View view) {
         categorySpinner.performClick();
     }
 
@@ -353,7 +346,55 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.addMarker(new MarkerOptions().position(current).title("Current Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_on)));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 15));
     }
+
+    @Override
+    public void OnLocation(Location location) {
+
+        for (CompanyDetails company : companiesList) {
+            LatLng latLng = new LatLng(company.getLatitude(),company.getLongitude());
+            Location companyLocation = new Location("");
+            companyLocation.setLatitude(utils.getDecimalValue(latLng.latitude));
+            companyLocation.setLongitude(utils.getDecimalValue(latLng.longitude));
+            Float distanceInKiloMeters = (location.distanceTo(companyLocation)) / 1000; // as distance is in meter
+            if (distanceInKiloMeters <= maxDistance) {
+                Log.i("RCCI_Debug", "Location Found in 1 km radius");
+                mMap.addMarker(new MarkerOptions().position(latLng).title(company.getCompanyName()+"/"+company.getAddress()));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+            } else {
+                Log.i("RCCI_Debug", "Not in range");
+            }
+        }
+        progressDialog.dismiss();
+
+    }
+
     public interface OnMarkerSelectListener {
-        void OnMArkerSelecetd(String companyName, String Address);
+        void OnMArkerSelecetd(String companyName);
+    }
+
+    private class DownloadFiles extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            fetchFirebaseData(myRef, response -> {
+                Log.i("ModelTest", response.toString());
+                for (Companies companies : response) {
+                    categoryList.add(companies.getCategory());
+                    for (CompanyDetails companyDetails : companies.getComapniesList()) {
+                        companiesList.add(companyDetails);
+                    }
+                }
+                Log.i("RCCI_Debug","Data received ");
+                initSpinner();
+            }, error -> {
+                Log.i("Response Error ",error.getMessage());
+            });
+            return null;
+        }
     }
 }

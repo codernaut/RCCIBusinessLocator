@@ -45,14 +45,9 @@ public class AdapterSearchCompanies extends RecyclerView.Adapter<AdapterSearchCo
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         final CompanyDetails mCompanyDetail = companiesList.get(position);
-        holder.locationName.setText(mCompanyDetail.getName());
+        holder.locationName.setText(mCompanyDetail.getCompanyName());
         holder.locationAddress.setText(mCompanyDetail.getAddress());
-        holder.container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.OnLocationSelect(mCompanyDetail.getName(), mCompanyDetail.getAddress());
-            }
-        });
+        holder.container.setOnClickListener(view -> mListener.OnLocationSelect(mCompanyDetail.getCompanyName(), mCompanyDetail.getAddress()));
     }
 
     @Override

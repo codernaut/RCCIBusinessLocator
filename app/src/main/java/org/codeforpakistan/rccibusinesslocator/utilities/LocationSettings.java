@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -17,13 +16,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
-import org.codeforpakistan.rccibusinesslocator.RcciApplication;
-
-import io.realm.Realm;
 
 public class LocationSettings {
 
@@ -113,8 +106,7 @@ public class LocationSettings {
                     if (location != null) {
                         if (getLocationOnly) {
                             mLocationSettingsListener.OnLocation(location);
-                        }
-                        else  {
+                        } else {
                             mLocationSettingsListener.OnLocationSettingRespponse(location);
                         }
                     }
@@ -123,6 +115,7 @@ public class LocationSettings {
 
     public interface LocationsSettingsListener {
         void OnLocationSettingRespponse(Location location);
+
         void OnLocation(Location location);
     }
 }

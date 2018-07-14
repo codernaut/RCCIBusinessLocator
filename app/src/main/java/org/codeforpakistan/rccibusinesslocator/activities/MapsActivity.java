@@ -210,13 +210,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng islamabad = new LatLng(33.6844, 73.0479);
         mMap.setBuildingsEnabled(true);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(islamabad));
+        mMap.getUiSettings().setMapToolbarEnabled(true);
         UpdateMarker();
         mMap.setOnMarkerClickListener(marker -> {
             mOnMarkerSelectListener = companyDetailsFragment;
+            mMap.getUiSettings().setMapToolbarEnabled(true);
             mOnMarkerSelectListener.OnMArkerSelecetd(marker.getTitle());
-
             fragmentManager.beginTransaction().show(companyDetailsFragment).commit();
-            return true;
+            return false;
         });
     }
 

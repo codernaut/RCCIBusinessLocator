@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RCCI Business Locator</string>
+    <string name="app_name">RCCI</string>
     <string name="title_activity_maps">Map</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -14,4 +14,12 @@
     <string name="search_current_location">Current Location</string>
     <string name="search_location">Search Locaion</string>
 
+
+    <string name="REALM_SCHEMA_VERSION">1</string>
+
+    <string name="CATEGORY_NAME">CATEGORY_NAME</string>
+
+    <string name="REGISTER_URL">https://www.rcci.org.pk/wp-content/uploads/2016/12/RCCI-Membership-Application-Form.pdf</string>
+    <string name="RENEW_URL">https://rcci.org.pk/online-renewal/</string>
+    <string name="GEOAPI_KEY">AIzaSyDdMD-D7M-HOTuQEUA7HPelOMxMLhkM_l0</string>
 </resources>

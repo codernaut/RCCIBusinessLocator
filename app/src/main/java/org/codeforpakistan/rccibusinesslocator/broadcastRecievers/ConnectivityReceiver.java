@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import org.codeforpakistan.rccibusinesslocator.App;
+import org.codeforpakistan.rccibusinesslocator.RcciApplication;
 
 /**
  * Created by AhmedAbbas on 12/22/2017.
@@ -22,7 +22,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
     public static boolean isConnected() {
         ConnectivityManager
-                cm = (ConnectivityManager) App.getInstance().getApplicationContext()
+                cm = (ConnectivityManager) RcciApplication.getInstance().getApplicationContext()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();

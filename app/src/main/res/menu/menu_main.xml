@@ -2,21 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".view.activities.MainActivity">
+
     <item
         android:id="@+id/action_search"
-        android:icon="@android:drawable/ic_menu_search"
-        android:iconTint="@color/white"
-        android:iconTintMode="screen"
-        android:orderInCategory="100"
-        android:title="@string/search_location"
-        app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/action_location"
-        android:icon="@drawable/ic_location_on"
-        android:iconTint="@color/white"
-        android:iconTintMode="screen"
-        android:orderInCategory="100"
-        android:title="@string/search_current_location"
-        app:showAsAction="always" />
+        android:title="Search"
+        android:icon="@drawable/menu"
+        app:showAsAction="always"
+        />
 </menu>

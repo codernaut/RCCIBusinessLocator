@@ -49,9 +49,7 @@ public class LocationEnablerFragment extends Fragment {
                     if (utils.checkNetworkState(getActivity())) {
                         //SHOW OUR SETTINGS ALERT, AND LET THE USE TURN ON ALL THE GPS PROVIDERS
                         Log.i("Service Binded = ", "1");
-                        if (((MapsActivity) getActivity()).bindService() == false) {
-                            ((MapsActivity) getActivity()).UpdateMarker();
-                        }
+
                     } else {
                         Toast.makeText(getActivity(), "You are not connected to Internet", Toast.LENGTH_LONG).show();
                     }
@@ -87,9 +85,7 @@ public class LocationEnablerFragment extends Fragment {
                             if (utils.checkNetworkState(getActivity())) {
                                 //SHOW OUR SETTINGS ALERT, AND LET THE USE TURN ON ALL THE GPS PROVIDERS
                                 Log.i("Service Binded = ", "1");
-                                if (((MapsActivity) getActivity()).bindService() == false) {
-                                    ((MapsActivity) getActivity()).UpdateMarker();
-                                }
+
                             } else {
                                 Toast.makeText(getActivity(), "You are not connected to Internet", Toast.LENGTH_LONG).show();
                             }
@@ -110,9 +106,7 @@ public class LocationEnablerFragment extends Fragment {
                         if (utils.checkNetworkState(getActivity())) {
                             //SHOW OUR SETTINGS ALERT, AND LET THE USE TURN ON ALL THE GPS PROVIDERS
                             Log.i("Service Binded = ", "2");
-                            if (((MapsActivity) getActivity()).bindService() == false) {
-                                ((MapsActivity) getActivity()).UpdateMarker();
-                            }
+
                         } else {
                             Toast.makeText(getActivity(), "You are not connected to Internet", Toast.LENGTH_LONG).show();
                         }

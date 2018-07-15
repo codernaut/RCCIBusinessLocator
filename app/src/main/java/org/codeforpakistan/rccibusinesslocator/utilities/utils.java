@@ -1,6 +1,5 @@
 package org.codeforpakistan.rccibusinesslocator.utilities;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +12,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.model.GeocodingResult;
 
 import org.codeforpakistan.rccibusinesslocator.R;
 import org.codeforpakistan.rccibusinesslocator.dialog.LocationAlertDialogFragment;
@@ -27,14 +31,14 @@ import java.text.DecimalFormat;
 public class utils {
     private static DecimalFormat dtime = new DecimalFormat("#.######");
 
-    public static Float getDecimalValue(Float value)
-    {
+    public static Float getDecimalValue(Float value) {
         return Float.parseFloat(dtime.format(value));
     }
-    public static Float getDecimalValue(Double value)
-    {
+
+    public static Float getDecimalValue(Double value) {
         return Float.parseFloat(dtime.format(value));
     }
+
     public static boolean checkNetworkState(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -83,6 +87,25 @@ public class utils {
         }
 
         return result;
+    }
+
+    public static LatLng getLocationFromAddress(Context context, String strAddress) {
+        LatLng p1 = null;
+        GeoApiContext geoApiContext = new GeoApiContext.Builder()
+                .apiKey(context.getString(R.string.GEOAPI_KEY))
+                .build();
+        try {
+            GeocodingResult[] results = GeocodingApi.geocode(geoApiContext,
+                    strAddress).await();
+            if(results.length>0){
+                p1 = new LatLng(results[0].geometry.location.lat, results[0].geometry.location.lng);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return p1;
+
     }
 
     public static void showLocationSettingsAlert(final AppCompatActivity context) {
